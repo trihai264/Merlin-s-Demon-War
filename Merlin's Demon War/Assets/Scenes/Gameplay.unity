@@ -394,13 +394,13 @@ MonoBehaviour:
     - {fileID: 0}
     - {fileID: 0}
     position:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 1472863907}
+    - {fileID: 8482700}
+    - {fileID: 1086577599}
     animNames:
-    - 
-    - 
-    - 
+    - CardDealPos1
+    - CardDealPos2
+    - CardDealPos3
     isPlayers: 1
   enemysHand:
     cards:
@@ -408,14 +408,16 @@ MonoBehaviour:
     - {fileID: 0}
     - {fileID: 0}
     position:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    - {fileID: 1684874081}
+    - {fileID: 1427399318}
+    - {fileID: 466773298}
     animNames:
-    - 
-    - 
-    - 
+    - CardDealPos4
+    - CardDealPos5
+    - CardDealPos6
     isPlayers: 0
+  player: {fileID: 1540617297}
+  enemy: {fileID: 427408519}
   cards:
   - {fileID: 11400000, guid: 4086b548f298dc544b96c88837273b84, type: 2}
   - {fileID: 11400000, guid: d6e0d657a7885864cac908dc7e81c2d6, type: 2}
@@ -447,6 +449,19 @@ MonoBehaviour:
   - {fileID: 21300014, guid: d506ac50aac95714bb72693f793c1e29, type: 3}
   - {fileID: 21300016, guid: d506ac50aac95714bb72693f793c1e29, type: 3}
   - {fileID: 21300018, guid: d506ac50aac95714bb72693f793c1e29, type: 3}
+  cardPrefab: {fileID: 5846583713967733096, guid: e5b084a17aff0144da85b0980d82bf18,
+    type: 3}
+  canvas: {fileID: 277630116}
+  isPlayable: 0
+  effectFromLeftPrefab: {fileID: 8231218539704009994, guid: 46137bc24512be548950fd1839e0983f,
+    type: 3}
+  effectFromRightPrefab: {fileID: 7580466056366295781, guid: 1cf517d2b11589749b957a1e71d684dc,
+    type: 3}
+  fireBallImage: {fileID: 21300000, guid: 01497bf6e0c664c48a8e15e88ab11c1e, type: 3}
+  iceBallImage: {fileID: 21300000, guid: 094e1894a2b0bc744b9c9a4e7fcf2a4c, type: 3}
+  multiFireBallImage: {fileID: 21300000, guid: 08b767fab0d40ae48b1fbb70a0f35973, type: 3}
+  multiIceBallImage: {fileID: 21300000, guid: 34dd6271f32d234438b5d5ee42cc88f0, type: 3}
+  fireAndIceImage: {fileID: 21300000, guid: 7c8ca5d0f3a12f347a2a95264531b149, type: 3}
 --- !u!4 &155409955
 Transform:
   m_ObjectHideFlags: 0
@@ -1809,6 +1824,7 @@ GameObject:
   - component: {fileID: 747936516}
   - component: {fileID: 747936518}
   - component: {fileID: 747936517}
+  - component: {fileID: 747936519}
   m_Layer: 5
   m_Name: BurncardImage
   m_TagString: Untagged
@@ -1872,6 +1888,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 747936515}
   m_CullTransparentMesh: 0
+--- !u!114 &747936519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747936515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53dff93c56b16bb4da5244e890301096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &781690115
 GameObject:
   m_ObjectHideFlags: 0
@@ -3788,6 +3816,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Card
+      objectReference: {fileID: 0}
+    - target: {fileID: 5846583713967733096, guid: e5b084a17aff0144da85b0980d82bf18,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5846583713967733097, guid: e5b084a17aff0144da85b0980d82bf18,
         type: 3}

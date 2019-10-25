@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IDropHandler
 {
 
     public Image playerImage = null;
@@ -33,5 +34,20 @@ public class Player : MonoBehaviour
         if (animator != null)
             animator.SetTrigger("Hit");
 
+    }
+
+    public void OnDrop(PointerEventData eventData)
+    {
+        if (!GameController.instance.isPlayable)
+            return;
+        GameObject obj = eventData.pointerDrag;
+        if (obj!= null)
+        {
+            Card card = obj.GetComponent<Card>();
+            if (card!=null)
+            {
+                GameController.instance.UseCard(card, this, GameController.instance.playersHand);
+            }
+        }
     }
 }

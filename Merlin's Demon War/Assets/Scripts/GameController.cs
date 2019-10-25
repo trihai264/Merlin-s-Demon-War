@@ -13,16 +13,35 @@ public class GameController : MonoBehaviour
     public Hand playersHand = new Hand();
     public Hand enemysHand = new Hand();
 
+    public Player player = null;
+    public Player enemy = null;
+
     public List<CardData> cards = new List<CardData>();
 
     public Sprite[] healthNumbers = new Sprite[10];
     public Sprite[] damageNumbers = new Sprite[10];
+
+    public GameObject cardPrefab = null;
+    public Canvas canvas = null;
+
+    public bool isPlayable = false;
+
+    public GameObject effectFromLeftPrefab = null;
+    public GameObject effectFromRightPrefab = null;
+
+    public Sprite fireBallImage = null;
+    public Sprite iceBallImage = null;
+    public Sprite multiFireBallImage = null;
+    public Sprite multiIceBallImage = null;
+    public Sprite fireAndIceBallImage = null;
 
     private void Awake()
     {
         instance = this;
         playerDeck.Create();
         enemyDeck.Create();
+
+        StartCoroutine(DealHands());
     }
 
     public void Quit()
@@ -34,4 +53,123 @@ public class GameController : MonoBehaviour
     {
         Debug.Log("Skip Turn");
     }
+
+    internal IEnumerator DealHands()
+    {
+        yield return new WaitForSeconds(1);
+        for (int t=0;t<3;t++)
+        {
+            playerDeck.DealCard(playersHand);
+            enemyDeck.DealCard(enemysHand);
+            yield return new WaitForSeconds(1);
+        }
+        isPlayable = true;
+    }
+
+    internal bool UseCard(Card card, Player usingOnPlayer, Hand fromHand)
+    {
+       
+        //CastEffect
+        //removefromDeck
+        //DealReplace
+
+        if (!CardValid(card, usingOnPlayer, fromHand))
+            return false;
+
+        isPlayable = false;
+
+        CastCard(card, usingOnPlayer, fromHand);
+
+
+        return false;
+    }
+
+    internal bool CardValid(Card cardBeingPlayed, Player usingOnPlayer, Hand fromHand)
+    {
+        bool valid = false;
+
+        if (cardBeingPlayed == null)
+            return false;
+
+        if (fromHand.isPlayers)
+        {
+            if(cardBeingPlayed.cardData.cost<=player.mana)
+            {
+                if (usingOnPlayer.isPlayer && cardBeingPlayed.cardData.isDefenseCard)
+                    valid = true;
+                if (!usingOnPlayer.isPlayer && !cardBeingPlayed.cardData.isDefenseCard)
+                    valid = true;
+            }
+        }
+        else // from enemys
+        {
+            if (cardBeingPlayed.cardData.cost <= enemy.mana)
+            {
+                if (!usingOnPlayer.isPlayer && cardBeingPlayed.cardData.isDefenseCard)
+                    valid = true;
+                if (usingOnPlayer.isPlayer && !cardBeingPlayed.cardData.isDefenseCard)
+                    valid = true;
+            }
+        }
+        return valid;
+    }
+
+    internal void CastCard(Card card, Player usingOnPlayer, Hand fromHand)
+    {
+        if (card.cardData.isMirrorCard)
+        {
+
+        }
+        else
+        {
+            if (card.cardData.isDefenseCard)
+            {
+
+            }
+            else //Atk card
+            {
+                CastAttackEffect(card, usingOnPlayer);
+            }
+            //add score
+        }
+        //update player mana
+    }
+
+    internal void CastAttackEffect(Card card, Player usingOnPlayer)
+    {
+        GameObject effectGO = null;
+        if (usingOnPlayer.isPlayer)
+            effectGO = Instantiate(effectFromRightPrefab, canvas.gameObject.transform);
+        else
+            effectGO = Instantiate(effectFromLeftPrefab, canvas.gameObject.transform);
+
+        Effect effect = effectGO.GetComponent<Effect>();
+        {
+            effect.targetPlayer = usingOnPlayer;
+            effect.sourceCard = card;
+
+            switch(card.cardData.damageType)
+            {
+                case CardData.DamageType.Fire:
+                    if (card.cardData.isMulti)
+                        effect.effectImage.sprite = multiFireBallImage;
+                    else
+                        effect.effectImage.sprite = fireBallImage;
+                    break;
+                case CardData.DamageType.Ice:
+                    if (card.cardData.isMulti)
+                        effect.effectImage.sprite = multiIceBallImage;
+                    else
+                        effect.effectImage.sprite = iceBallImage;
+
+                    break;
+                case CardData.DamageType.Both:
+                    effect.effectImage.sprite = fireAndIceBallImage;
+
+                    break;
+            }
+        }
+
+    }
+
 }
