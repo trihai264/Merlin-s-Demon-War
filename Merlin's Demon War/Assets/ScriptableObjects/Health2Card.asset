@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddade63046d245742b28acce319dd430, type: 3}
+  m_Name: Health2Card
+  m_EditorClassIdentifier: 
+  cardTitle: Large Health
+  description: Restore 4 health
+  cost: 1
+  damage: 4
+  damageType: 0
+  cardImage: {fileID: 21300000, guid: 2d812e37e7be6aa44b40153d13b857d9, type: 3}
+  frameImage: {fileID: 21300000, guid: 6cc976456348dbc4ba2c25e2f29eb22a, type: 3}
+  numberinDeck: 3
+  isDefenseCard: 1
+  isMirrorCard: 0
+  isMulti: 0
