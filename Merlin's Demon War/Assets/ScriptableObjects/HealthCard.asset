@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HealthCard
   m_EditorClassIdentifier: 
   cardTitle: Small Health
-  description: Restore 1 health
+  description: Restore 2 health
   cost: 1
   damage: 2
   damageType: 0

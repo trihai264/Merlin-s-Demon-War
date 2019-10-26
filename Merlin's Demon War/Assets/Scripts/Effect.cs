@@ -9,20 +9,77 @@ public class Effect : MonoBehaviour
     public Card sourceCard = null;
     public Image effectImage = null;
 
+    public AudioSource iceAudio = null;
+    public AudioSource fireballAudio = null;
+    public AudioSource destructballAudio = null;
+
     public void EndTrigger()
     {
-        int damage = sourceCard.cardData.damage;
-        if (targetPlayer.isPlayer) //enemy
-        {
-            if (sourceCard.cardData.damageType == CardData.DamageType.Fire && targetPlayer.isFire)
-                damage = damage / 2;
-            if (sourceCard.cardData.damageType == CardData.DamageType.Ice && !targetPlayer.isFire)
-                damage = damage / 2;
-        }
-        targetPlayer.health -= damage;
-        //check death
 
-        GameController.instance.isPlayable = true;
+        bool bounce = false;
+        if (targetPlayer.hasMirror())
+        {
+            bounce = true;
+            targetPlayer.SetMirror(false);
+            targetPlayer.PlaySmashSound();
+
+            if(targetPlayer.isPlayer)
+            {
+                GameController.instance.CastAttackEffect(sourceCard, GameController.instance.enemy);
+            }
+            else
+            {
+                GameController.instance.CastAttackEffect(sourceCard, GameController.instance.player);
+            }
+        }
+        else
+        {
+            int damage = sourceCard.cardData.damage;
+            if (!targetPlayer.isPlayer) //enemy
+            {
+                if (sourceCard.cardData.damageType == CardData.DamageType.Fire && targetPlayer.isFire)
+                    damage = damage / 2;
+                if (sourceCard.cardData.damageType == CardData.DamageType.Ice && !targetPlayer.isFire)
+                    damage = damage / 2;
+            }
+            targetPlayer.health -= damage;
+
+            targetPlayer.PlayHitAnim();
+
+            GameController.instance.UpdateHealths();
+            
+            if(targetPlayer.health<=0)
+            {
+                targetPlayer.health = 0;
+                if(targetPlayer.isPlayer)
+                {
+                    GameController.instance.PlayPlayerDieSound();
+
+                }
+                else
+                {
+                    GameController.instance.PlayEnemyDieSound();
+                }
+                
+            }
+
+            if (!bounce)
+                GameController.instance.NextPlayerTurn();
+
+            GameController.instance.isPlayable = true;
+        }
         Destroy(gameObject);
+    }
+    internal void PlayIceSound()
+    {
+        iceAudio.Play();
+    }
+    internal void PlayFireBallSound()
+    {
+        fireballAudio.Play();
+    }
+    internal void PlayDestructSound()
+    {
+        destructballAudio.Play();
     }
 }

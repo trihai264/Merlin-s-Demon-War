@@ -12,7 +12,8 @@ public class Player : MonoBehaviour, IDropHandler
     public Image healthNumberImage = null;
     public Image glowImage = null;
 
-    public int health = 5;
+    public int maxHealth = 5;
+    public int health = 5; //current health
     public int mana = 1;
 
     public bool isPlayer;
@@ -23,9 +24,17 @@ public class Player : MonoBehaviour, IDropHandler
 
     private Animator animator = null;
 
+    public AudioSource dealAudio = null;
+    public AudioSource healAudio = null;
+    public AudioSource mirrorAudio = null;
+    public AudioSource smashAudio = null;
+    
+
     void Start()
     {
         animator = GetComponent<Animator>();
+        UpdateHealth();
+        UpdateManaBalls();
 
     }
 
@@ -50,4 +59,55 @@ public class Player : MonoBehaviour, IDropHandler
             }
         }
     }
+
+    internal void UpdateHealth()
+    {
+        if (health>=0 && health< GameController.instance.healthNumbers.Length)
+        {
+            healthNumberImage.sprite = GameController.instance.healthNumbers[health];
+        }
+        else
+        {
+            Debug.LogWarning("health is not a valid number" + health.ToString());
+        }
+    }
+
+    internal void SetMirror(bool on)
+    {
+        mirrorImage.gameObject.SetActive(on);
+    }
+
+    internal bool hasMirror()
+    {
+        return mirrorImage.gameObject.activeInHierarchy;
+    }
+
+    internal void UpdateManaBalls()
+    {
+        for(int m=0; m<5; m++)
+        {
+            if (mana > m)
+                manaBalls[m].SetActive(true);
+            else
+                manaBalls[m].SetActive(false);
+        }
+    }
+
+    internal void PlayMirrorSound()
+    {
+        mirrorAudio.Play();
+    }
+    internal void PlaySmashSound()
+    {
+        smashAudio.Play();
+    }
+    internal void PlayHealSound()
+    {
+        healAudio.Play();
+    }
+    internal void PlayDealSound()
+    {
+        dealAudio.Play();
+    }
+    
 }

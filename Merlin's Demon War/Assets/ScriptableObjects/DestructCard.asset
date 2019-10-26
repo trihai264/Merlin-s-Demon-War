@@ -10,16 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ddade63046d245742b28acce319dd430, type: 3}
-  m_Name: Health2Card
+  m_Name: DestructCard
   m_EditorClassIdentifier: 
-  cardTitle: Large Health
-  description: Restore 4 health
-  cost: 2
-  damage: 4
-  damageType: 0
-  cardImage: {fileID: 21300000, guid: 2d812e37e7be6aa44b40153d13b857d9, type: 3}
-  frameImage: {fileID: 21300000, guid: 6cc976456348dbc4ba2c25e2f29eb22a, type: 3}
-  numberinDeck: 3
-  isDefenseCard: 1
+  cardTitle: Destruct
+  description: Destroys the enemy, created by Hai
+  cost: 5
+  damage: 9
+  damageType: 3
+  cardImage: {fileID: 21300000, guid: f0d1f03b8166a8143b2221dfb6e296b7, type: 3}
+  frameImage: {fileID: 21300000, guid: bdf4d9f3de0de2a448f35f7d4f5c287c, type: 3}
+  numberinDeck: 6
+  isDefenseCard: 0
   isMirrorCard: 0
   isMulti: 0
+  isDestruct: 1

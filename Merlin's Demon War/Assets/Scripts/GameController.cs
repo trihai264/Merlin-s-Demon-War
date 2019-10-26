@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -34,10 +35,31 @@ public class GameController : MonoBehaviour
     public Sprite multiFireBallImage = null;
     public Sprite multiIceBallImage = null;
     public Sprite fireAndIceBallImage = null;
+    public Sprite destructImage = null;
+
+    public bool playersTurn = true;
+
+    public Text turnText = null;
+
+    public Text scoreText = null;
+
+    public int playerScore = 0;
+    public int playerKills = 0;
+
+    public Image enemySkipTurn = null;
+
+    public Sprite fireDemon = null;
+    public Sprite iceDemon = null;
+
+    public AudioSource playerDieAudio = null;
+    public AudioSource enemyDieAudio = null;
 
     private void Awake()
     {
         instance = this;
+
+        SetUpEnemy();
+
         playerDeck.Create();
         enemyDeck.Create();
 
@@ -48,10 +70,11 @@ public class GameController : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    // FINISH THIS
+    
     public void SkipTurn()
     {
-        Debug.Log("Skip Turn");
+        if(playersTurn && isPlayable)
+        NextPlayerTurn();
     }
 
     internal IEnumerator DealHands()
@@ -69,7 +92,7 @@ public class GameController : MonoBehaviour
     internal bool UseCard(Card card, Player usingOnPlayer, Hand fromHand)
     {
        
-        //CastEffect
+        
         //removefromDeck
         //DealReplace
 
@@ -79,6 +102,11 @@ public class GameController : MonoBehaviour
         isPlayable = false;
 
         CastCard(card, usingOnPlayer, fromHand);
+
+        player.glowImage.gameObject.SetActive(false);
+        enemy.glowImage.gameObject.SetActive(false);
+
+        fromHand.RemoveCard(card);
 
 
         return false;
@@ -118,21 +146,52 @@ public class GameController : MonoBehaviour
     {
         if (card.cardData.isMirrorCard)
         {
-
+            usingOnPlayer.SetMirror(true);
+            usingOnPlayer.PlayMirrorSound();
+            NextPlayerTurn();
+            isPlayable = true;
         }
         else
         {
             if (card.cardData.isDefenseCard)
             {
+                usingOnPlayer.health += card.cardData.damage;
+                usingOnPlayer.PlayHealSound();
 
+                if (usingOnPlayer.health > usingOnPlayer.maxHealth)
+                    usingOnPlayer.health = usingOnPlayer.maxHealth;
+
+                UpdateHealths();
+
+                StartCoroutine(CastHealEffect(usingOnPlayer));
             }
             else //Atk card
             {
                 CastAttackEffect(card, usingOnPlayer);
             }
-            //add score
+            
+            if (fromHand.isPlayers)
+                playerScore += card.cardData.damage;
+            UpdateScore();
         }
-        //update player mana
+        
+        if (fromHand.isPlayers)
+        {
+            GameController.instance.player.mana -= card.cardData.cost;
+            GameController.instance.player.UpdateManaBalls();
+        }
+        else
+        {
+            GameController.instance.enemy.mana -= card.cardData.cost;
+            GameController.instance.enemy.UpdateManaBalls();
+        }
+    }
+
+    private IEnumerator CastHealEffect(Player usingOnPlayer)
+    {
+        yield return new WaitForSeconds(0.5f);
+        NextPlayerTurn();
+        isPlayable = true;
     }
 
     internal void CastAttackEffect(Card card, Player usingOnPlayer)
@@ -155,16 +214,24 @@ public class GameController : MonoBehaviour
                         effect.effectImage.sprite = multiFireBallImage;
                     else
                         effect.effectImage.sprite = fireBallImage;
+                    effect.PlayFireBallSound();
                     break;
                 case CardData.DamageType.Ice:
                     if (card.cardData.isMulti)
                         effect.effectImage.sprite = multiIceBallImage;
                     else
                         effect.effectImage.sprite = iceBallImage;
-
+                    effect.PlayIceSound();
                     break;
                 case CardData.DamageType.Both:
                     effect.effectImage.sprite = fireAndIceBallImage;
+                    effect.PlayFireBallSound();
+                    effect.PlayIceSound();
+
+                    break;
+                case CardData.DamageType.Destruct:
+                    effect.effectImage.sprite = destructImage;
+                    effect.PlayDestructSound();
 
                     break;
             }
@@ -172,4 +239,183 @@ public class GameController : MonoBehaviour
 
     }
 
+    internal void UpdateHealths()
+    {
+        player.UpdateHealth();
+        enemy.UpdateHealth();
+
+        if (player.health<=0)
+        {
+            StartCoroutine(GameOver());
+        }
+        if (enemy.health<=0)
+        {
+            playerKills++;
+            playerScore += 100;
+            UpdateScore();
+            StartCoroutine(NewEnemy());
+        }
+    }
+
+    private IEnumerator NewEnemy()
+    {
+        enemy.gameObject.SetActive(false);
+        enemysHand.ClearHand();
+        yield return new WaitForSeconds(0.75f);
+        SetUpEnemy();
+        enemy.gameObject.SetActive(true);
+        StartCoroutine(DealHands());
+    }
+
+    private void SetUpEnemy()
+    {
+        enemy.mana = 0;
+        enemy.health = 5;
+        enemy.UpdateHealth();
+        enemy.isFire = true;
+        if (UnityEngine.Random.Range(0, 2) == 1)
+            enemy.isFire = false;
+        if (enemy.isFire)
+            enemy.playerImage.sprite = fireDemon;
+        else
+            enemy.playerImage.sprite = iceDemon;
+
+    }
+
+    private IEnumerator GameOver()
+    {
+        yield return new WaitForSeconds(1);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(2);
+    }
+
+    internal void NextPlayerTurn()
+    {
+        playersTurn = !playersTurn;
+        bool enemyIsDead = false;
+
+        if(playersTurn)
+        {
+            if(player.mana<5)
+            player.mana++;
+        }
+        else //Enemy
+        {
+            if (enemy.health > 0)
+            {
+                if (enemy.mana < 5)
+                    enemy.mana++;
+            }
+            else
+                enemyIsDead = true;
+        }
+
+        if (enemyIsDead)
+        {
+            playersTurn = !playersTurn;
+            if (player.mana < 5)
+                player.mana++;
+        }
+        else
+        {
+            SetTurnText();
+            if (!playersTurn)
+                MonstersTurn();
+        }
+
+        player.UpdateManaBalls();
+        enemy.UpdateManaBalls();
+    }
+
+    internal void SetTurnText()
+    {
+        if(playersTurn)
+        {
+            turnText.text = "Merlin's Turn";
+
+        }
+        else
+        {
+            turnText.text = "Enemy's Turn";
+        }
+    }
+
+    private void MonstersTurn()
+    {
+        Card card = AIChooseCard();
+        StartCoroutine(MonsterCastCard(card));
+
+    }
+
+    private Card AIChooseCard()
+    {
+        List<Card> available = new List<Card>();
+        for (int i = 0; i < 3; i++)
+        {
+            if (CardValid(enemysHand.cards[i], enemy, enemysHand))
+                available.Add(enemysHand.cards[i]);
+            else if (CardValid(enemysHand.cards[i], player, enemysHand))
+                available.Add(enemysHand.cards[i]);
+        }
+
+        if (available.Count ==0) // none available
+        {
+            NextPlayerTurn();
+            return null;
+        }
+        int choice = UnityEngine.Random.Range(0, available.Count);
+        return available[choice];
+
+    }
+
+    private IEnumerator MonsterCastCard(Card card)
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        if(card)
+        {
+            TurnCard(card);
+            yield return new WaitForSeconds(2);
+
+            if (card.cardData.isDefenseCard)
+                UseCard(card, enemy, enemysHand);
+            else //attack card
+                UseCard(card, player, enemysHand);
+            yield return new WaitForSeconds(1);
+
+            enemyDeck.DealCard(enemysHand);
+            yield return new WaitForSeconds(1);
+
+        }
+        else //no card to use, skip turn
+        {
+            enemySkipTurn.gameObject.SetActive(true);
+            yield return new WaitForSeconds(1);
+            enemySkipTurn.gameObject.SetActive(false);
+        }
+    }
+
+    internal void TurnCard(Card card)
+    {
+        Animator animator = card.GetComponentInChildren<Animator>();
+        if (animator)
+        {
+            animator.SetTrigger("Flip");
+        }
+        else
+            Debug.LogError("no Animation Found ");
+    }
+
+
+    private void UpdateScore()
+    {
+        scoreText.text = "Demon killed: " + playerKills.ToString() + ".  Score: " + playerScore.ToString();
+    }
+    internal void PlayPlayerDieSound()
+    {
+        playerDieAudio.Play();
+    }
+    internal void PlayEnemyDieSound()
+    {
+        enemyDieAudio.Play();
+    }
 }
